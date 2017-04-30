@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by dsptushkin on 30.04.17.
  */
-public class TaskContainer {
+public class TaskContainer{
     private LocalDateTime time;
     private Callable<Object> task;
 
