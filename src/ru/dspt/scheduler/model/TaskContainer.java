@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by dsptushkin on 30.04.17.
  */
-public class TaskContainer{
+public class TaskContainer implements Comparable<TaskContainer>{
     private LocalDateTime time;
     private Callable<Object> task;
 
@@ -32,5 +32,11 @@ public class TaskContainer{
 
     public void setTime(LocalDateTime time) {
         this.time = time;
+    }
+
+    @Override
+    public int compareTo(TaskContainer o) {
+        //todo: check not null
+        return this.getTime().compareTo(o.getTime());
     }
 }

@@ -1,5 +1,7 @@
 package ru.dspt.scheduler;
 
+import org.junit.Test;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,6 +24,20 @@ public class ScheduledExecutorTest {
 
     }
 
+    @Test
+    public void testStartScheduling() throws Exception {
+        System.out.println("queue size: " + executor.queue.size());
+        for (int i = 0; i < 5; i++) {
+            executor.plan(LocalDateTime.now(), () -> {
+                System.out.print("Test task executed\t");
+                System.out.println(Thread.currentThread().toString() + "  " + LocalDateTime.now());
+                return null;
+            });
+        }
+        executor.startScheduling();
+        System.out.println("queue size: " + executor.queue.size());
+    }
+
     @org.junit.Test
     public void plan() throws Exception {
         System.out.println(executor.queue.size());
@@ -31,7 +47,7 @@ public class ScheduledExecutorTest {
             return null;
         });
         System.out.println(executor.queue.size());
-        assertNotNull(executor.queue.size());
+        assertEquals(1, executor.queue.size());
 
     }
 

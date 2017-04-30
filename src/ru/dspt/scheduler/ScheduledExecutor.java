@@ -2,22 +2,28 @@ package ru.dspt.scheduler;
 
 import ru.dspt.scheduler.model.TaskContainer;
 
-import java.time.LocalDateTime;
-import java.util.PriorityQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.time.*;
+import java.util.concurrent.*;
 
 /**
  * Created by dsptushkin on 30.04.17.
  */
 public class ScheduledExecutor implements Scheduler {
-    ExecutorService service;
-    PriorityQueue<TaskContainer> queue;
+    private ExecutorService service;
+    PriorityBlockingQueue<TaskContainer> queue;
 
     public ScheduledExecutor() {
         this.service = Executors.newCachedThreadPool();
-        queue = new PriorityQueue<>();
+        queue = new PriorityBlockingQueue<>();
+    }
+
+    public void startScheduling() {
+        Thread t = new Thread(new TimeIntervalBasedExecutor(queue, service));
+        t.setDaemon(true);
+        t.start();
+        t = new Thread(new TimeoutBasedExecutor(queue, service));
+        t.setDaemon(true);
+        t.start();
     }
 
     @Override
