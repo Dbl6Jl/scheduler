@@ -19,7 +19,7 @@ public class ScheduledExecutor implements Scheduler {
 
     public void startScheduling() {
         Thread t = new Thread(new TimeIntervalBasedExecutor(queue, service));
-        t.setDaemon(true);
+//        t.setDaemon(true);
         t.start();
         t = new Thread(new TimeoutBasedExecutor(queue, service));
         t.setDaemon(true);

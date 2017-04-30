@@ -3,6 +3,7 @@ package ru.dspt.scheduler;
 import ru.dspt.scheduler.model.TaskContainer;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -24,14 +25,15 @@ public class TimeoutBasedExecutor implements Runnable {
     @Override
     public void run() {
         while(true) {
-            if(queue.peek().getTime().isAfter(LocalDateTime.now())) {
+            System.out.println("Ежесекундное исполнение");
+            System.out.println(Thread.currentThread().isDaemon());
+            while(!queue.isEmpty() && queue.peek().getTime().isBefore(LocalDateTime.now())) {
                 service.submit(queue.poll().getTask());
             }
             try {
-                TimeUnit.SECONDS.sleep(1L);
-            } catch (InterruptedException e) {
+                Thread.sleep(1000);
+            } catch (Throwable e) {
                 e.printStackTrace();
-                Thread.yield();
             }
         }
     }

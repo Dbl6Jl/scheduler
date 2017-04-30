@@ -28,10 +28,12 @@ public class ScheduledExecutorTest {
     public void testStartScheduling() throws Exception {
         System.out.println("queue size: " + executor.queue.size());
         for (int i = 0; i < 5; i++) {
-            executor.plan(LocalDateTime.now(), () -> {
-                System.out.print("Test task executed\t");
-                System.out.println(Thread.currentThread().toString() + "  " + LocalDateTime.now());
-                return null;
+            LocalDateTime planTime = LocalDateTime.now().plusSeconds(i);
+            int finalI = i;
+            executor.plan(planTime, () -> {
+                System.out.print("Test task #" + finalI + " executed\t");
+                System.out.println(Thread.currentThread().toString() + "  " + planTime);
+                return new Object();
             });
         }
         executor.startScheduling();
