@@ -44,7 +44,7 @@ public class TimeIntervalBasedExecutor implements Runnable {
                 LocalDateTime now = LocalDateTime.now();
                 long timeout = MILLIS.between(LocalDateTime.now(), nextTaskTime);
                 //если 0, с момента завершения внутреннего while накидали задач на сейчас/в прошлое
-                System.out.println("Расчет времени сна: " + MILLIS.between(now, nextTaskTime) + "мс");
+//                System.out.println("Расчет времени сна: " + MILLIS.between(now, nextTaskTime) + "мс");
                 try {
                     TimeUnit.MILLISECONDS.sleep(timeout);
                 } catch (InterruptedException e) {
