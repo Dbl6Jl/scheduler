@@ -17,7 +17,7 @@ import static java.time.temporal.ChronoUnit.MILLIS;
  */
 public class TimeIntervalBasedExecutor implements Runnable {
     private ExecutorService service;
-    final PriorityBlockingQueue<TaskContainer> queue;
+    private final PriorityBlockingQueue<TaskContainer> queue;
 
     public TimeIntervalBasedExecutor(PriorityBlockingQueue<TaskContainer> queue, ExecutorService service) {
         this.service = service;
@@ -27,46 +27,29 @@ public class TimeIntervalBasedExecutor implements Runnable {
     @Override
     public void run() {
         while(true) {
-            try {
-                System.out.println("Планирование таймаута. Размер очереди: " + queue.size());
-                if (queue.isEmpty()) {
-                    System.out.println("очередь пуста. завершение работы");
-//                try {
-//                    TimeUnit.SECONDS.sleep(5);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-                    break;
-                } else {
-                    while (!queue.isEmpty() && queue.peek().getTime().isBefore(LocalDateTime.now())) {
-                        System.out.println("ЗАПЛАНИРОВАННОЕ ИСПОЛНЕНИЕ " + LocalDateTime.now());
-                        System.out.println("Время следующей запланированной задачи: " + queue.peek().getTime());
-                        System.out.println("queue is not empty, executing task with planned time:" + queue.peek().getTime() +
-                                "\n time : " + LocalDateTime.now());
-                        service.submit(queue.poll().getTask());
-                    }
-                    System.out.println("Расчет времени сна...");
-                    //todo: выяснить, надо ли ждать, пока очередь опять наполнят, или завершить программу
-                    if(queue.isEmpty()) {
-                        service.shutdown();
-                        break;
-                    }
-                    LocalDateTime nextTaskTime = queue.peek().getTime();
-                    LocalDateTime now = LocalDateTime.now();
-                    System.out.println("Расчет времени сна до " + nextTaskTime);
-                    System.out.println("Расчет времени сна:" + MILLIS.between(now, nextTaskTime));
-                    System.out.println(MILLIS.between(now, nextTaskTime));
-                    long timeout = MILLIS.between(LocalDateTime.now(), nextTaskTime);
-                    System.out.println("next queue task in " + timeout + " millis");
-                    try {
-                        System.out.println("Засыпаем");
-                        TimeUnit.MILLISECONDS.sleep(timeout);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            System.out.println("Планирование таймаута. Размер очереди: " + queue.size());
+            if (!queue.isEmpty()) {
+                while (!queue.isEmpty() && queue.peek().getTime().isBefore(LocalDateTime.now())) {
+                    System.out.println("ЗАПЛАНИРОВАННОЕ ИСПОЛНЕНИЕ " + LocalDateTime.now());
+                    System.out.println("Время следующей запланированной задачи: " + queue.peek().getTime());
+                    service.submit(queue.poll().getTask());
+                    Thread.yield();
                 }
-            } catch (Throwable e) {
-                e.printStackTrace();
+                //todo: выяснить, надо ли ждать, пока очередь опять наполнят, или завершить программу
+                if(queue.isEmpty()) {
+//                        service.shutdown();
+                    break;
+                }
+                LocalDateTime nextTaskTime = queue.peek().getTime();
+                LocalDateTime now = LocalDateTime.now();
+                long timeout = MILLIS.between(LocalDateTime.now(), nextTaskTime);
+                //если 0, с момента завершения внутреннего while накидали задач на сейчас/в прошлое
+                System.out.println("Расчет времени сна: " + MILLIS.between(now, nextTaskTime) + "мс");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(timeout);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

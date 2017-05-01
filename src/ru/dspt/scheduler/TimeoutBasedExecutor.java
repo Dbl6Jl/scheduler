@@ -26,7 +26,6 @@ public class TimeoutBasedExecutor implements Runnable {
     public void run() {
         while(true) {
             System.out.println("Ежесекундное исполнение");
-            System.out.println(Thread.currentThread().isDaemon());
             while(!queue.isEmpty() && queue.peek().getTime().isBefore(LocalDateTime.now())) {
                 service.submit(queue.poll().getTask());
             }
